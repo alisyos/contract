@@ -194,6 +194,30 @@ export default function ContractGenerator() {
           <ContractPreview data={contractData} />
         </div>
       </div>
+
+      {/* 로딩 모달 */}
+      {isGenerating && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+            <div className="mb-4">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              AI 계약서 생성 중
+            </h3>
+            <p className="text-gray-600 mb-4">
+              입력하신 정보를 바탕으로 전문적인 계약서를 생성하고 있습니다.
+            </p>
+            <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+              <span>⏱️</span>
+              <span>예상 소요 시간: 30-60초</span>
+            </div>
+            <div className="mt-4 text-xs text-gray-400">
+              잠시만 기다려주세요...
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
