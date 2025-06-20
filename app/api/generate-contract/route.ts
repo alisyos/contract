@@ -117,6 +117,16 @@ ${data.specialConditions.customConditions ? `추가 조건: ${data.specialCondit
 전문적이고 완성도 높은 계약서를 작성해 주세요.`
 }
 
+// 타임아웃을 위한 Promise wrapper
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+    )
+  ])
+}
+
 export async function POST(request: NextRequest) {
   try {
     const contractData: ContractData = await request.json()
@@ -138,21 +148,26 @@ export async function POST(request: NextRequest) {
       ? `${customSystemPrompt}\n\n${commonPrompt.content}`
       : `당신은 한국의 법무 전문가입니다. 정확하고 전문적인 계약서를 작성하는 것이 당신의 역할입니다. 모든 법적 요구사항을 충족하고, 양 당사자의 권익을 보호하는 균형잡힌 계약서를 작성해야 합니다.\n\n${commonPrompt.content}`
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4.1",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      max_tokens: 3000,
-      temperature: 0.3,
-    })
+    // OpenAI API 호출에 타임아웃 적용 (60초)
+    const completion = await withTimeout(
+      openai.chat.completions.create({
+        model: "gpt-4.1",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        max_tokens: 2500, // 토큰 수 줄여서 응답 시간 단축
+        temperature: 0.3,
+        stream: false, // 스트리밍 비활성화로 안정성 향상
+      }),
+      60000 // 60초 타임아웃
+    )
 
     const generatedContract = completion.choices[0]?.message?.content
 
@@ -169,8 +184,25 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error generating contract:', error)
+    
+    // 타임아웃 에러 처리
+    if (error instanceof Error && error.message === 'Request timeout') {
+      return NextResponse.json(
+        { success: false, error: 'Request timeout - please try again' },
+        { status: 408 }
+      )
+    }
+    
+    // OpenAI API 에러 처리
+    if (error instanceof Error && error.message.includes('OpenAI')) {
+      return NextResponse.json(
+        { success: false, error: 'OpenAI API error - please try again' },
+        { status: 503 }
+      )
+    }
+
     return NextResponse.json(
-      { success: false, error: 'Failed to generate contract' },
+      { success: false, error: 'Failed to generate contract - please try again' },
       { status: 500 }
     )
   }

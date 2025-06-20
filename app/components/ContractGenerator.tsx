@@ -83,15 +83,40 @@ export default function ContractGenerator() {
         body: JSON.stringify(contractData),
       })
       
+      // 응답이 JSON이 아닌 경우 처리 (504 에러 등)
+      if (!response.ok) {
+        let errorMessage = '계약서 생성에 실패했습니다.'
+        
+        if (response.status === 504) {
+          errorMessage = '서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.'
+        } else if (response.status === 408) {
+          errorMessage = '요청 시간이 초과되었습니다. 다시 시도해주세요.'
+        } else if (response.status === 503) {
+          errorMessage = 'AI 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해주세요.'
+        }
+        
+        alert(errorMessage)
+        return
+      }
+      
       const data = await response.json()
       
       if (data.success) {
         setContractData(prev => ({ ...prev, generatedContract: data.contract }))
       } else {
-        console.error('Contract generation failed:', data.error)
+        alert(data.error || '계약서 생성에 실패했습니다.')
       }
     } catch (error) {
       console.error('Error generating contract:', error)
+      
+      // 네트워크 에러나 JSON 파싱 에러 처리
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        alert('네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인해주세요.')
+      } else if (error instanceof SyntaxError) {
+        alert('서버 응답에 문제가 있습니다. 잠시 후 다시 시도해주세요.')
+      } else {
+        alert('예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
+      }
     } finally {
       setIsGenerating(false)
     }

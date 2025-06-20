@@ -1,10 +1,7 @@
 {
   "functions": {
     "app/api/generate-contract/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
-  },
-  "env": {
-    "OPENAI_API_KEY": "@openai_api_key"
   }
 } 
