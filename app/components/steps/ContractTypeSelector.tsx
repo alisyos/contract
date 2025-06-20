@@ -30,7 +30,7 @@ const contractCategories: ContractCategory[] = [
     id: 'distribution',
     name: '유통/물류',
     description: '유통 및 물류 관련 계약서',
-    icon: '📦',
+    icon: '🚚',
     contracts: [
       { id: 'supply_chain', name: '공급계약서', description: '상품 공급에 관한 계약' },
       { id: 'agency', name: '유통대리점 계약서', description: '유통 대리점 운영에 관한 계약' },
@@ -63,7 +63,7 @@ const contractCategories: ContractCategory[] = [
     id: 'medical',
     name: '의료/제약',
     description: '의료 및 제약 관련 계약서',
-    icon: '⚕️',
+    icon: '🏥',
     contracts: [
       { id: 'clinical', name: '임상시험계약서', description: '임상시험 수행에 관한 계약' },
       { id: 'medical_consign', name: '위수탁(의료/실험) 계약서', description: '의료/실험 위수탁에 관한 계약' },

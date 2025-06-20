@@ -8,17 +8,8 @@ interface ContractPreviewProps {
 }
 
 export default function ContractPreview({ data }: ContractPreviewProps) {
-  const [zoom, setZoom] = useState(100)
   const [isEditing, setIsEditing] = useState(false)
   const [editableContent, setEditableContent] = useState('')
-
-  const handleZoom = (direction: 'in' | 'out') => {
-    if (direction === 'in' && zoom < 150) {
-      setZoom(zoom + 10)
-    } else if (direction === 'out' && zoom > 50) {
-      setZoom(zoom - 10)
-    }
-  }
 
   const handleEdit = () => {
     if (!isEditing) {
@@ -59,7 +50,6 @@ export default function ContractPreview({ data }: ContractPreviewProps) {
     return (
       <div 
         className="bg-white p-8 shadow-inner border border-gray-200 rounded"
-        style={{ fontSize: `${zoom}%` }}
       >
         {isEditing ? (
           <textarea
@@ -80,26 +70,8 @@ export default function ContractPreview({ data }: ContractPreviewProps) {
   return (
     <div className="space-y-4">
       {/* 도구 모음 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => handleZoom('out')}
-            className="p-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded"
-            disabled={zoom <= 50}
-          >
-            <span>🔍-</span>
-          </button>
-          <span className="text-sm text-gray-600 px-2">{zoom}%</span>
-          <button
-            onClick={() => handleZoom('in')}
-            className="p-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded"
-            disabled={zoom >= 150}
-          >
-            <span>🔍+</span>
-          </button>
-        </div>
-
-        {data.generatedContract && (
+      {data.generatedContract && (
+        <div className="flex items-center justify-end">
           <div className="flex items-center space-x-2">
             <button
               onClick={handleEdit}
@@ -130,8 +102,8 @@ export default function ContractPreview({ data }: ContractPreviewProps) {
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 미리보기 영역 */}
       <div className="border border-gray-200 rounded-lg bg-gray-50 p-4 max-h-96 overflow-auto">

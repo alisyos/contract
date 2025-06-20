@@ -46,4 +46,25 @@ export interface ContractType {
   id: string
   name: string
   description: string
+}
+
+export interface SystemPrompt {
+  id: string
+  category: string
+  contractType: string
+  title: string
+  prompt: string
+  lastModified: Date
+  isActive: boolean
+}
+
+export interface PromptCategory {
+  id: string
+  name: string
+  icon: string
+  contracts: {
+    id: string
+    name: string
+    prompt: string
+  }[]
 } 

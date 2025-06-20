@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { getPromptByContractType, commonPrompt } from '../../data/prompts'
 import { ContractData } from '../../types/contract'
 
 const openai = new OpenAI({
@@ -129,12 +130,20 @@ export async function POST(request: NextRequest) {
 
     const prompt = generateContractPrompt(contractData)
 
+    // 계약서 유형에 맞는 전용 프롬프트 가져오기
+    const customSystemPrompt = getPromptByContractType(contractData.contractCategory, contractData.contractType)
+    
+    // 개별 프롬프트와 공통 프롬프트를 조합
+    const systemPrompt = customSystemPrompt 
+      ? `${customSystemPrompt}\n\n${commonPrompt.content}`
+      : `당신은 한국의 법무 전문가입니다. 정확하고 전문적인 계약서를 작성하는 것이 당신의 역할입니다. 모든 법적 요구사항을 충족하고, 양 당사자의 권익을 보호하는 균형잡힌 계약서를 작성해야 합니다.\n\n${commonPrompt.content}`
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1",
       messages: [
         {
           role: "system",
-          content: "당신은 한국의 법무 전문가입니다. 정확하고 전문적인 계약서를 작성하는 것이 당신의 역할입니다. 모든 법적 요구사항을 충족하고, 양 당사자의 권익을 보호하는 균형잡힌 계약서를 작성해야 합니다."
+          content: systemPrompt
         },
         {
           role: "user",
